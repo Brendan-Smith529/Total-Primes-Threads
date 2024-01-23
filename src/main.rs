@@ -1,18 +1,21 @@
-// use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use std::thread;
 
 const N_THREADS: usize = 8;
-const LIMIT: usize = 20;
+const LIMIT: usize = 100_000_000;
 
 fn main() {
     // Start timer
     let start_time = Instant::now();
 
-    // Create shared counter an vector for all handles (start at 2 since 0 and 1 aren't prime)
-    let counter = Arc::new(Mutex::new(2));
     let mut handles = vec![];
+
+    let counter = Arc::new(Mutex::new(3));
+
+    let num_primes = Arc::new(Mutex::new(0));
+
+    // let mut largest_primes = Arc::new(Mutex::new(vec![0; 10]));
 
     // Create a vector to store the total of each thread
     let thread_totals = Arc::new(Mutex::new(vec![0; N_THREADS]));
@@ -20,6 +23,8 @@ fn main() {
     for index in 0..N_THREADS {
         let counter = Arc::clone(&counter);
         let thread_totals = Arc::clone(&thread_totals);
+        let num_primes = Arc::clone(&num_primes);
+        // let largest_primes = Arc::clone(&largest_primes);
 
         let handle = thread::spawn(move || {
             let mut total = 0;
@@ -30,14 +35,16 @@ fn main() {
                     let mut num = counter.lock().unwrap();
                     val = *num;
 
-                    if val > LIMIT { break; }
-
-                    *num += 1;
+                    *num += 2;
                 }
 
+                if val > LIMIT { break; }
 
                 if is_prime(val) {
                     total += val;
+
+                    let mut num_primes = num_primes.lock().unwrap();
+                    *num_primes += 1;
                 }
             }
 
@@ -52,18 +59,25 @@ fn main() {
         handle.join().unwrap();
     }
 
-    let total: usize = thread_totals.lock().unwrap().iter().sum();
-    println!("Total: {}", total);
-
     let time = start_time.elapsed();
-    println!("Time:  {:?}\n\n", time);
+    println!("Execution Time:  {:?}", time);
+
+    let num_primes = num_primes.lock().unwrap();
+    println!("Number of Primes Found: {}", num_primes);
+
+    let mut total: usize = thread_totals.lock().unwrap().iter().sum();
+    total += if LIMIT >= 2 { 2 } else { 0 };
+    println!("Sum of Primes: {}", total);
 }
 
 // Determines whether a number is prime or not; uses memoization to prevent unnecessary calculations
-fn is_prime_std(n: usize) -> bool {
+fn is_prime(n: usize) -> bool {
     let upper = (n as f64).sqrt() as usize;
 
-    for i in 2..=upper {
+    // Base case so we can ignore all evens
+    if n % 2 == 0 { return false; }
+
+    for i in (3..=upper).step_by(2) {
         if n % i == 0 { return false; }
     }
 
