@@ -111,6 +111,7 @@ fn main() {
     let result: Vec<_> = sorted_primes
         .into_iter()
         .take(10)
+        .rev()
         .collect();
 
     println!("{:?}}}", result);
@@ -118,9 +119,6 @@ fn main() {
 
 // Determines whether a number is prime or not
 fn is_prime(n: usize) -> bool {
-    // Base case so we can ignore all evens
-    if n % 2 == 0 { return false; }
-
     let upper = (n as f64).sqrt() as usize;
 
     for i in (3..=upper).step_by(2) {
