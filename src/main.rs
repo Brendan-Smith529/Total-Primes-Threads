@@ -81,7 +81,9 @@ fn main() {
     let mut text: String = format!("Execution Time:  {:?}\n", time);
 
     // States number of primes found
-    let num_primes = num_primes.lock().unwrap();
+    let mut num_primes = num_primes.lock().unwrap();
+    *num_primes += if LIMIT >= 2 { 1 } else { 0 };
+
     let num_primes_text: String = format!("Number of Primes Found: {}\n", num_primes);
     text.push_str(&num_primes_text);
 

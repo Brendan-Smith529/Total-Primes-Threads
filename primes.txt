@@ -1,4 +1,4 @@
-Execution Time:  13.003665036s
-Number of Primes Found: 5761454
+Execution Time:  13.213137605s
+Number of Primes Found: 5761455
 Sum of Primes: 279209790387276
 Ten Largest Primes: {[99999787, 99999821, 99999827, 99999839, 99999847, 99999931, 99999941, 99999959, 99999971, 99999989]}
