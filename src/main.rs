@@ -1,3 +1,4 @@
+use std::fs;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 use std::thread;
@@ -77,19 +78,23 @@ fn main() {
 
     // Calculates execution time
     let time = start_time.elapsed();
-    println!("Execution Time:  {:?}", time);
+    let mut text: String = format!("Execution Time:  {:?}\n", time);
 
     // States number of primes found
     let num_primes = num_primes.lock().unwrap();
-    println!("Number of Primes Found: {}", num_primes);
+    let num_primes_text: String = format!("Number of Primes Found: {}\n", num_primes);
+    text.push_str(&num_primes_text);
 
     // Calculates total sum of primes found
     let mut total: usize = thread_totals.lock().unwrap().iter().sum();
     total += if LIMIT >= 2 { 2 } else { 0 };
-    println!("Sum of Primes: {}", total);
+
+    let total_text: String = format!("Sum of Primes: {}\n", total);
+    text.push_str(&total_text);
 
     // Shows the ten largest primes
-    print!("Ten Largest Primes: {{");
+    let gen_text: String = format!("Ten Largest Primes: {{");
+    text.push_str(&gen_text);
 
     let mut primes = primes.lock().unwrap();
 
@@ -114,7 +119,11 @@ fn main() {
         .rev()
         .collect();
 
-    println!("{:?}}}", result);
+    let result_text: String = format!("{:?}}}\n", result);
+    text.push_str(&result_text);
+
+    // Prints result text to primes.txt
+    let _ = fs::write("primes.txt", text);
 }
 
 // Determines whether a number is prime or not
